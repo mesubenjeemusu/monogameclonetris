@@ -1,56 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsGame
 {
-    public enum PieceKind
-    {
-        I,
-        J,
-        L,
-        O,
-        S,
-        T,
-        Z
-    }
+    public enum PieceKind : int { I, J, L, O, S, T, Z }
 
     public abstract class Piece
     {
-        public Piece(Point initialPosition, Block block)
+        public Piece(Texture2D texture)
         {
-            blocks = new List<Block> { new Block(block), new Block(block), new Block(block), new Block(block) };
-            //this.position = initialPosition;
-            this.lastKeyboardState = new KeyboardState();
+            blocks = new List<Block> { new Block(texture), new Block(texture), new Block(texture), new Block(texture) };
         }
 
         public void Update()
         {
-            // Step Down
-
-            KeyboardState kbState = Keyboard.GetState();
-
-            if (kbState.IsKeyDown(Keys.Left))
-            {
-                if (this.lastKeyboardState.IsKeyUp(Keys.Left))
-                    StepLeft(50);
-            }
-            else if (this.lastKeyboardState.IsKeyUp(Keys.Right) && kbState.IsKeyDown(Keys.Right))
-            {
-                StepRight(50);
-            }
-            else if (kbState.IsKeyDown(Keys.Down))
-            {
-                // move down
-            }
-
-            this.lastKeyboardState = kbState;
-
             UpdateBlockPositionsFromGridIndices();
         }
 
@@ -70,21 +34,6 @@ namespace WindowsGame
             }
         }
 
-        private void StepLeft(int stepAmount)
-        {
-            //this.position.X -= stepAmount;
-        }
-
-        private void StepRight(int stepAmount)
-        {
-            //this.position.X += stepAmount;
-        }
-
-        private void StepDown()
-        {
-
-        }
-
         public virtual void Draw()
         {
             foreach (Block block in blocks)
@@ -92,10 +41,6 @@ namespace WindowsGame
                 block.Draw();
             }
         }
-
-        //public abstract int GetMaskRows();
-        //public abstract int GetMaskColumns();
-        //public abstract int[,] StateMask { get; }
 
         /// <summary>
         /// The piece's position (for each block) on the grid
@@ -107,19 +52,9 @@ namespace WindowsGame
         /// We use this to tell the grid which indices to set as "occupied"
         /// (set index to 1) for a given piece type
         /// </summary>
-        public virtual List<Point> PieceLayoutList { get; }
-        public abstract PieceKind Kind { get; }
+        public abstract List<Point> PieceLayoutList { get; }
+        protected List<Point> pieceLayoutList;
 
-        //public Rectangle Dimensions
-        //{
-        //    get
-        //    {
-        //        return new Rectangle(position.X, position.Y, _width, _height);
-        //    }
-        //}
-
-        KeyboardState lastKeyboardState;
-        //private Point position = Point.Zero;
         private List<Block> blocks;
         private const int _width = 50;
         private const int _height = 50;

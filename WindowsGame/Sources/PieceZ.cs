@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace WindowsGame
 {
-    public class PieceI : Piece
+    public class PieceZ : Piece
     {
-        public PieceI() : base(GLOBALS.Textures.RedSquareTexture)
+        public PieceZ() : base(GLOBALS.Textures.PurpleSquareTexture)
         {
         }
 
@@ -15,7 +15,7 @@ namespace WindowsGame
             {
                 if (pieceLayoutList == null)
                 {
-                    pieceLayoutList = new List<Point> { new Point(0, 0), new Point(1, 0), new Point(2, 0), new Point(3, 0) };
+                    pieceLayoutList = new List<Point> { new Point(0, 0), new Point(0, 1), new Point(1, 1), new Point(1, 2) };
                 }
                 return pieceLayoutList;
             }

@@ -1,10 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsGame
 {
@@ -19,5 +14,11 @@ namespace WindowsGame
     {
         public Textures() { }
         public Texture2D RedSquareTexture;
+        public Texture2D OrangeSquareTexture;
+        public Texture2D YellowSquareTexture;
+        public Texture2D GreenSquareTexture;
+        public Texture2D PurpleSquareTexture;
+        public Texture2D PinkSquareTexture;
+        public Texture2D BlueSquareTexture;
     }
 }

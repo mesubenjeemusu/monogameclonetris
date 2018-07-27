@@ -49,6 +49,12 @@
     <Compile Include="Sources\Piece.cs" />
     <Compile Include="Sources\PieceI.cs" />
     <Compile Include="Sources\Globals.cs" />
+    <Compile Include="Sources\PieceJ.cs" />
+    <Compile Include="Sources\PieceL.cs" />
+    <Compile Include="Sources\PieceO.cs" />
+    <Compile Include="Sources\PieceS.cs" />
+    <Compile Include="Sources\PieceT.cs" />
+    <Compile Include="Sources\PieceZ.cs" />
     <Compile Include="Sources\PlayGrid.cs" />
     <Compile Include="Sources\Utilities.cs" />
     <Compile Include="Sources\World.cs" />

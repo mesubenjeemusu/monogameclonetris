@@ -1,11 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsGame
 {
@@ -17,6 +15,7 @@ namespace WindowsGame
             this.rows = Math.Min(rows, _maxRows);
             int heightWithPadding = (50 * this.rows) + (2 * _padding);
             int widthWithPadding = (50 * this.columns) + (2 * _padding);
+            this.lastKeyboardState = new KeyboardState();
 
             state = new int[this.rows, this.columns];
             for(int i = 0; i < this.rows; i++)
@@ -27,44 +26,20 @@ namespace WindowsGame
                 }
             }
 
-            dimensions = new Rectangle(50, 50, widthWithPadding, heightWithPadding);
-            pieces = new List<Piece>
-            {
-                //new Block(new Vector2(55, 55), Color.Red),
-                //new Block(new Vector2(105, 55), Color.Red),
-                //new Block(new Vector2(155, 55), Color.Red),
-                //new Block(new Vector2(205, 55), Color.Red),
-                //new Block(new Vector2(55, 105), Color.Orange),
-                //new Block(new Vector2(55, 155), Color.Orange),
-                //new Block(new Vector2(105, 155), Color.Orange),
-                //new Block(new Vector2(155, 155), Color.Orange),
-                //new Block(new Vector2(255, 155), Color.Yellow),
-                //new Block(new Vector2(305, 155), Color.Yellow),
-                //new Block(new Vector2(355, 155), Color.Yellow),
-                //new Block(new Vector2(355, 105), Color.Yellow),
-                //new Block(new Vector2(255, 255), Color.Green),
-                //new Block(new Vector2(305, 255), Color.Green),
-                //new Block(new Vector2(305, 205), Color.Green),
-                //new Block(new Vector2(355, 205), Color.Green),
-                //new Block(new Vector2(55, 205), Color.Purple),
-                //new Block(new Vector2(105, 205), Color.Purple),
-                //new Block(new Vector2(105, 255), Color.Purple),
-                //new Block(new Vector2(155, 255), Color.Purple),
-                //new Block(new Vector2(55, 305), Color.Pink),
-                //new Block(new Vector2(105, 305), Color.Pink),
-                //new Block(new Vector2(55, 355), Color.Pink),
-                //new Block(new Vector2(105, 355), Color.Pink),
-                //new Block(new Vector2(255, 305), Color.Blue),
-                //new Block(new Vector2(205, 355), Color.Blue),
-                //new Block(new Vector2(255, 355), Color.Blue),
-                //new Block(new Vector2(305, 355), Color.Blue)
-            };
+            Dimensions = new Rectangle(50, 50, widthWithPadding, heightWithPadding);
+            pieces = new List<Piece>();
         }
 
         public void LoadContent()
         {
-            texture = UTILITIES.CreateBorderedTexture2D(Color.White, _padding, Color.Black, this.dimensions.Width, this.dimensions.Height);
+            texture = UTILITIES.CreateBorderedTexture2D(Color.White, _padding, Color.Black, this.Dimensions.Width, this.Dimensions.Height);
             GLOBALS.Textures.RedSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Red, _squareWidthHeight, _squareWidthHeight);
+            GLOBALS.Textures.OrangeSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Orange, _squareWidthHeight, _squareWidthHeight);
+            GLOBALS.Textures.YellowSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Yellow, _squareWidthHeight, _squareWidthHeight);
+            GLOBALS.Textures.GreenSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Green, _squareWidthHeight, _squareWidthHeight);
+            GLOBALS.Textures.PurpleSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Purple, _squareWidthHeight, _squareWidthHeight);
+            GLOBALS.Textures.PinkSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Pink, _squareWidthHeight, _squareWidthHeight);
+            GLOBALS.Textures.BlueSquareTexture = UTILITIES.CreateBorderedTexture2D(Color.Gray, _padding, Color.Blue, _squareWidthHeight, _squareWidthHeight);
         }
 
         public void Update()
@@ -72,8 +47,25 @@ namespace WindowsGame
             if (!isPieceInPlay)
                 SpawnPiece();
 
-            // Update piece in play
-            pieceInPlay.Update();
+            // Step Down
+
+            KeyboardState kbState = Keyboard.GetState();
+
+            if (kbState.IsKeyDown(Keys.Left))
+            {
+                if (this.lastKeyboardState.IsKeyUp(Keys.Left))
+                    StepLeft(50);
+            }
+            else if (this.lastKeyboardState.IsKeyUp(Keys.Right) && kbState.IsKeyDown(Keys.Right))
+            {
+                StepRight(50);
+            }
+            else if (kbState.IsKeyDown(Keys.Down))
+            {
+                // move down
+            }
+
+            this.lastKeyboardState = kbState;
 
             // Update static pieces
             foreach(Piece piece in pieces)
@@ -82,13 +74,11 @@ namespace WindowsGame
             }
 
             CheckBoundsAndAdjustIfNeeded();
-
-            
         }
 
         public void Draw()
         {
-            GLOBALS.SpriteBatch.Draw(texture, dimensions, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 0.1f);
+            GLOBALS.SpriteBatch.Draw(texture, Dimensions, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 0.1f);
 
             foreach (Piece piece in pieces)
             {
@@ -102,7 +92,7 @@ namespace WindowsGame
 
             // Set state
             int initialRow = 0;
-            int initialColumn = this.columns / 2;
+            int initialColumn = (this.columns / 2) - 1;
 
             int rowIndex = 0;
             int columnIndex = 0;
@@ -125,8 +115,30 @@ namespace WindowsGame
         private Piece GetRandomPiece()
         {
             Random random = new Random();
+            PieceKind randomPieceKind = (PieceKind)random.Next((int)PieceKind.I, (int)PieceKind.Z);
 
-            return new PieceI(new Point(dimensions.X + _padding, dimensions.Y + _padding), new Block(GLOBALS.Textures.RedSquareTexture));
+            // Set to I piece for testing
+            randomPieceKind = PieceKind.I;
+
+            switch(randomPieceKind)
+            {
+                case PieceKind.I:
+                    return new PieceI();
+                case PieceKind.J:
+                    return new PieceJ();
+                case PieceKind.L:
+                    return new PieceL();
+                case PieceKind.O:
+                    return new PieceO();
+                case PieceKind.S:
+                    return new PieceS();
+                case PieceKind.T:
+                    return new PieceT();
+                case PieceKind.Z:
+                    return new PieceZ();
+                default:
+                    return null;
+            }
         }
 
         public void PrintStateDebug()
@@ -161,12 +173,27 @@ namespace WindowsGame
             }
         }
 
+        private void StepLeft(int stepAmount)
+        {
+            //this.position.X -= stepAmount;
+        }
+
+        private void StepRight(int stepAmount)
+        {
+            //this.position.X += stepAmount;
+        }
+
+        private void StepDown()
+        {
+
+        }
+
         private BoundingBox GetBoundingBox()
         {
             if (boundingBox == null)
             {
-                Vector2 minBounds = new Vector2(dimensions.X + _padding, dimensions.Y + _padding);
-                Vector2 maxBounds = new Vector2(dimensions.X + dimensions.Width - _padding, dimensions.Y + dimensions.Height - _padding);
+                Vector2 minBounds = new Vector2(Dimensions.X + _padding, Dimensions.Y + _padding);
+                Vector2 maxBounds = new Vector2(Dimensions.X + Dimensions.Width - _padding, Dimensions.Y + Dimensions.Height - _padding);
 
                 boundingBox = new BoundingBox(new Vector3(minBounds, 0.0f), new Vector3(maxBounds, 0.0f));
             }
@@ -174,15 +201,8 @@ namespace WindowsGame
             return boundingBox;
         }
 
-        public Rectangle Dimensions
-        {
-            get
-            {
-                return dimensions;
-            }
-        }
-
-        private Rectangle dimensions;
+        KeyboardState lastKeyboardState;
+        public Rectangle Dimensions { get; }
         private BoundingBox boundingBox;
         private Texture2D texture;
         private List<Piece> pieces;
