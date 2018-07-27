@@ -16,7 +16,6 @@ namespace WindowsGame
             windowHeight = height;
 
             playGrid = new PlayGrid(10, 10);
-            redBlock = new Block(new Vector2(55, 55), Color.Red);
         }
 
         public void Initialize()
@@ -32,13 +31,11 @@ namespace WindowsGame
             textureScore = UTILITIES.CreateBorderedTexture2D(Color.White, 5, Color.Black, 525, 1900);
 
             playGrid.LoadContent();
-            redBlock.LoadContent();
         }
 
         public void Update()
         {
             playGrid.Update();
-            redBlock.Update();
         }
 
         public void Draw()
@@ -46,10 +43,9 @@ namespace WindowsGame
             GLOBALS.SpriteBatch.Draw(textureGame, new Rectangle(25, 25, textureGame.Width, textureGame.Height), null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 0.0f);
 
             playGrid.Draw();
-            redBlock.Draw();
         }
 
-        Block redBlock;
+        Piece blockI;
         PlayGrid playGrid;
         private Texture2D textureGame;
         private Texture2D textureScore;

@@ -8,9 +8,16 @@ using System.Threading.Tasks;
 
 namespace WindowsGame
 {
-    class GLOBALS
+    public class GLOBALS
     {
         static public GraphicsDeviceManager Graphics;
         static public SpriteBatch SpriteBatch;
+        static public Textures Textures;
+    }
+
+    public class Textures
+    {
+        public Textures() { }
+        public Texture2D RedSquareTexture;
     }
 }

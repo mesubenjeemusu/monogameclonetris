@@ -14,6 +14,7 @@ namespace WindowsGame
         public Game1()
         {
             GLOBALS.Graphics = new GraphicsDeviceManager(this);
+            GLOBALS.Textures = new Textures();
             Content.RootDirectory = "Content";
 
             //GLOBALS.Graphics.PreferredBackBufferHeight = 2000;
