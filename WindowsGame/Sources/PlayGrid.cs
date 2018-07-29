@@ -51,18 +51,17 @@ namespace WindowsGame
 
             KeyboardState kbState = Keyboard.GetState();
 
-            if (kbState.IsKeyDown(Keys.Left))
+            if (this.lastKeyboardState.IsKeyUp(Keys.Left) && kbState.IsKeyDown(Keys.Left))
             {
-                if (this.lastKeyboardState.IsKeyUp(Keys.Left))
-                    StepLeft(50);
+                StepLeft();
             }
             else if (this.lastKeyboardState.IsKeyUp(Keys.Right) && kbState.IsKeyDown(Keys.Right))
             {
-                StepRight(50);
+                StepRight();
             }
             else if (kbState.IsKeyDown(Keys.Down))
             {
-                // move down
+                StepDown();
             }
 
             this.lastKeyboardState = kbState;
@@ -72,8 +71,6 @@ namespace WindowsGame
             {
                 piece.Update();
             }
-
-            CheckBoundsAndAdjustIfNeeded();
         }
 
         public void Draw()
@@ -102,7 +99,7 @@ namespace WindowsGame
                 columnIndex = initialColumn + pieceInPlay.PieceLayoutList[i].Y;
 
                 state[rowIndex, columnIndex] = 1;
-                pieceInPlay.PieceGridPositionList.Add(new Point(rowIndex, columnIndex));
+                pieceInPlay.PieceGridPositionList[i] = new Point(rowIndex, columnIndex);
             }
 
             // Debug check
@@ -165,27 +162,80 @@ namespace WindowsGame
             }
         }
 
-        private void CheckBoundsAndAdjustIfNeeded()
+        private bool CollisionDetected(Point offset)
         {
-            foreach(Piece block in pieces)
+            for (int i = 0; i < pieceInPlay.PieceGridPositionList.Count; i++)
             {
+                // Create new move point candidate based on offset
+                Point point = pieceInPlay.PieceGridPositionList[i];
+                point.Y += offset.Y;
+                point.X += offset.X;
 
+                // Check play area bounds
+                if (point.X < 0 || point.Y < 0 || point.X >= this.rows || point.Y >= this.columns)
+                    return true;
+
+                // Can't collide with space you already occupy
+                if (pieceInPlay.PieceGridPositionList.Find(piecePoint => { return (point.X == piecePoint.X || point.Y == piecePoint.Y); }) != null)
+                    continue;
+
+                // Check for collision with other pieces
+                if (state[point.X, point.Y] == 1)
+                    return true;
             }
+
+            return false;
         }
 
-        private void StepLeft(int stepAmount)
+        private void StepLeft()
         {
-            //this.position.X -= stepAmount;
+            Step(new Point(0, -1));
         }
 
-        private void StepRight(int stepAmount)
+        private void StepRight()
         {
-            //this.position.X += stepAmount;
+            Step(new Point(0, 1));
         }
 
         private void StepDown()
         {
+            Step(new Point(1, 0));
+        }
 
+        private void Step(Point offset)
+        {
+            // Check for collision
+            if (CollisionDetected(offset))
+                return;
+
+            // Debug
+            PrintStateDebug();
+
+            // Zero out current pieceInPlay position in state
+            for (int i = 0; i < pieceInPlay.PieceGridPositionList.Count; i++)
+            {
+                Point point = pieceInPlay.PieceGridPositionList[i];
+                state[point.X, point.Y] = 0;
+            }
+
+            // Debug
+            PrintStateDebug();
+
+            // Move piece in play based on offset
+            for (int i = 0; i < pieceInPlay.PieceGridPositionList.Count; i++)
+            {
+                // Update position in grid based on offset
+                Point point = pieceInPlay.PieceGridPositionList[i];
+                point.Y += offset.Y;
+                point.X += offset.X;
+
+                // Commit pieceInPlay and game state
+                pieceInPlay.PieceGridPositionList[i] = point;
+                state[point.X, point.Y] = 1;
+            }
+
+            // Debug
+            PrintStateDebug();
         }
 
         private BoundingBox GetBoundingBox()

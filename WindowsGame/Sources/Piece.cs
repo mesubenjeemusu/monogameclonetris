@@ -11,6 +11,7 @@ namespace WindowsGame
         public Piece(Texture2D texture)
         {
             blocks = new List<Block> { new Block(texture), new Block(texture), new Block(texture), new Block(texture) };
+            pieceGridPositionList = new List<Point> { Point.Zero, Point.Zero, Point.Zero, Point.Zero };
         }
 
         public void Update()
@@ -45,7 +46,12 @@ namespace WindowsGame
         /// <summary>
         /// The piece's position (for each block) on the grid
         /// </summary>
-        public List<Point> PieceGridPositionList = new List<Point>(4);
+        public List<Point> PieceGridPositionList
+        {
+            get { return pieceGridPositionList; }
+            set { pieceGridPositionList = value; }
+        }
+        protected List<Point> pieceGridPositionList;
 
         /// <summary>
         /// Basically a grid "mask"
