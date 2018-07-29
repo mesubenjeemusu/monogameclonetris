@@ -47,24 +47,10 @@ namespace WindowsGame
             if (!isPieceInPlay)
                 SpawnPiece();
 
-            // Step Down
+            CheckInputAndMovePiece(Keyboard.GetState());
 
-            KeyboardState kbState = Keyboard.GetState();
-
-            if (this.lastKeyboardState.IsKeyUp(Keys.Left) && kbState.IsKeyDown(Keys.Left))
-            {
-                StepLeft();
-            }
-            else if (this.lastKeyboardState.IsKeyUp(Keys.Right) && kbState.IsKeyDown(Keys.Right))
-            {
-                StepRight();
-            }
-            else if (kbState.IsKeyDown(Keys.Down))
-            {
-                StepDown();
-            }
-
-            this.lastKeyboardState = kbState;
+            if (IsPieceFinishedMoving())
+                isPieceInPlay = false;
 
             // Update static pieces
             foreach(Piece piece in pieces)
@@ -81,6 +67,24 @@ namespace WindowsGame
             {
                 piece.Draw();
             }
+        }
+
+        private void CheckInputAndMovePiece(KeyboardState kbState)
+        {
+            if (this.lastKeyboardState.IsKeyUp(Keys.Left) && kbState.IsKeyDown(Keys.Left))
+            {
+                StepLeft();
+            }
+            else if (this.lastKeyboardState.IsKeyUp(Keys.Right) && kbState.IsKeyDown(Keys.Right))
+            {
+                StepRight();
+            }
+            else if (kbState.IsKeyDown(Keys.Down))
+            {
+                StepDown();
+            }
+
+            this.lastKeyboardState = kbState;
         }
 
         private void SpawnPiece()
@@ -176,7 +180,7 @@ namespace WindowsGame
                     return true;
 
                 // Can't collide with space you already occupy
-                if (pieceInPlay.PieceGridPositionList.Find(piecePoint => { return (point.X == piecePoint.X || point.Y == piecePoint.Y); }) != null)
+                if (pieceInPlay.PieceGridPositionList.Exists(piecePoint => { return (point.X == piecePoint.X && point.Y == piecePoint.Y); }))
                     continue;
 
                 // Check for collision with other pieces
@@ -185,6 +189,29 @@ namespace WindowsGame
             }
 
             return false;
+        }
+
+        private bool IsPieceFinishedMoving()
+        {
+            return pieceInPlay.PieceGridPositionList.Exists(piecePoint =>
+                    {
+                        // If piece has reached the bottom we're done
+                        if (piecePoint.X == (this.rows - 1))
+                            return true;
+
+                        Point blockBelow = new Point(piecePoint.X + 1, piecePoint.Y);
+
+                        // If block below is a part of this piece, continue checking
+                        // Can't collide with space you already occupy
+                        if (pieceInPlay.PieceGridPositionList.Exists((pieceInPlayPiece) => { return (blockBelow.X == pieceInPlayPiece.X && blockBelow.Y == pieceInPlayPiece.Y); }))
+                            return false;
+                        
+                        // If piece is blocked by another piece below it, we're done
+                        if (state[blockBelow.X, blockBelow.Y] == 1)
+                            return true;
+
+                        return false;
+                    });
         }
 
         private void StepLeft()
