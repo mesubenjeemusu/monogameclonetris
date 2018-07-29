@@ -143,9 +143,9 @@ namespace WindowsGame
             // Print Grid
             string stateString = string.Empty;
 
-            for (int i = 0; i < this.columns; i++)
+            for (int i = 0; i < this.rows; i++)
             {
-                for (int j = 0; j < this.rows; j++)
+                for (int j = 0; j < this.columns; j++)
                 {
                     stateString += state[i, j] + " ";
                 }

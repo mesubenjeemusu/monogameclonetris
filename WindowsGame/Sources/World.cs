@@ -10,7 +10,7 @@ namespace WindowsGame
             windowWidth = width;
             windowHeight = height;
 
-            playGrid = new PlayGrid(10, 10);
+            playGrid = new PlayGrid(20, 15);
         }
 
         public void Initialize()
