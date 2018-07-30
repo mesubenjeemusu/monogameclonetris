@@ -76,23 +76,32 @@ namespace WindowsGame
         }
 
         public abstract List<Point> GetRotationTranslationCandidate(RotationDirection rotationDirection);
-        public virtual void UpdateRotationDegree(RotationDirection rotationDirection)
+        public void UpdateRotationDegree(RotationDirection rotationDirection)
         {
-            switch(rotationDirection)
+            Rotation = GetRotationDegreeFromRotationDirection(rotationDirection);
+        }
+
+        protected virtual RotationDegree GetRotationDegreeFromRotationDirection(RotationDirection rotationDirection)
+        {
+            RotationDegree degreeCalculation = Rotation;
+
+            switch (rotationDirection)
             {
                 case RotationDirection.Clockwise:
                     if (Rotation == RotationDegree.TwoSeventyFive)
-                        Rotation = RotationDegree.Zero;
+                        degreeCalculation = RotationDegree.Zero;
                     else
-                        Rotation += 1;
+                        degreeCalculation += 1;
                     break;
                 case RotationDirection.CounterClockwise:
                     if (Rotation == RotationDegree.Zero)
-                        Rotation = RotationDegree.TwoSeventyFive;
+                        degreeCalculation = RotationDegree.TwoSeventyFive;
                     else
-                        Rotation -= 1;
+                        degreeCalculation -= 1;
                     break;
             }
+
+            return degreeCalculation;
         }
 
         public int PivotIndex { get; protected set; }

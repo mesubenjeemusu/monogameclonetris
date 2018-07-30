@@ -107,12 +107,14 @@ namespace WindowsGame
             if (this.lastKeyboardState.IsKeyUp(Keys.X) && kbState.IsKeyDown(Keys.X))
             {
                 List<Point> rotationCandidate = pieceInPlay.GetRotationTranslationCandidate(RotationDirection.Clockwise);
-                Translate(rotationCandidate, RotationDirection.Clockwise);
+                if (rotationCandidate != null)
+                    Translate(rotationCandidate, RotationDirection.Clockwise);
             }
             else if (this.lastKeyboardState.IsKeyUp(Keys.Z) && kbState.IsKeyDown(Keys.Z))
             {
                 List<Point> rotationCandidate = pieceInPlay.GetRotationTranslationCandidate(RotationDirection.CounterClockwise);
-                Translate(rotationCandidate, RotationDirection.CounterClockwise);
+                if (rotationCandidate != null)
+                    Translate(rotationCandidate, RotationDirection.CounterClockwise);
             }
 
             this.lastKeyboardState = kbState;
@@ -150,7 +152,7 @@ namespace WindowsGame
             PieceKind randomPieceKind = (PieceKind)random.Next((int)PieceKind.I, (int)PieceKind.Z);
 
             // Set to I piece for testing
-            randomPieceKind = PieceKind.I;
+            //randomPieceKind = PieceKind.I;
 
             switch(randomPieceKind)
             {

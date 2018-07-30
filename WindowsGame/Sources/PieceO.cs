@@ -12,7 +12,14 @@ namespace WindowsGame
 
         public override List<Point> GetRotationTranslationCandidate(RotationDirection rotationDirection)
         {
-            throw new System.NotImplementedException();
+            // O Piece - no rotation needed
+            return null;
+        }
+
+        protected override RotationDegree GetRotationDegreeFromRotationDirection(RotationDirection rotationDirection)
+        {
+            // O Piece - no rotation needed
+            return RotationDegree.Zero;
         }
     }
 }

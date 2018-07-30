@@ -15,35 +15,40 @@ namespace WindowsGame
         {
             Point pivot = PieceGridPositionList[PivotIndex];
             List<Point> rotateCandidateList = new List<Point>();
+            RotationDegree candidateDegree = GetRotationDegreeFromRotationDirection(rotationDirection);
 
             // NOTE: rotationDirection matters not for this piece; it's just a toggle.
             // So, we'll just ignore it.
-            switch (Rotation)
+            switch (candidateDegree)
             {
                 case RotationDegree.Zero:
-                    rotateCandidateList.Add(new Point(pivot.X, pivot.Y - 1));
-                    rotateCandidateList.Add(pivot);
-                    rotateCandidateList.Add(new Point(pivot.X, pivot.Y + 1));
-                    rotateCandidateList.Add(new Point(pivot.X, pivot.Y + 2));
-                    break;
-                case RotationDegree.Ninety:
                     rotateCandidateList.Add(new Point(pivot.X - 1, pivot.Y));
                     rotateCandidateList.Add(pivot);
                     rotateCandidateList.Add(new Point(pivot.X + 1, pivot.Y));
                     rotateCandidateList.Add(new Point(pivot.X + 2, pivot.Y));
+                    break;
+                case RotationDegree.Ninety:
+                    rotateCandidateList.Add(new Point(pivot.X, pivot.Y - 1));
+                    rotateCandidateList.Add(pivot);
+                    rotateCandidateList.Add(new Point(pivot.X, pivot.Y + 1));
+                    rotateCandidateList.Add(new Point(pivot.X, pivot.Y + 2));
                     break;
             }
 
             return rotateCandidateList;
         }
 
-        public override void UpdateRotationDegree(RotationDirection rotationDirection)
+        protected override RotationDegree GetRotationDegreeFromRotationDirection(RotationDirection rotationDirection)
         {
+            RotationDegree degreeCalculation = Rotation;
+
             // This piece has, basically, two rotation states; simply toggle them.
             if (Rotation == RotationDegree.Zero)
-                Rotation = RotationDegree.Ninety;
+                degreeCalculation = RotationDegree.Ninety;
             else if (Rotation == RotationDegree.Ninety)
-                Rotation = RotationDegree.Zero;
+                degreeCalculation = RotationDegree.Zero;
+
+            return degreeCalculation;
         }
     }
 }
