@@ -10,12 +10,6 @@ namespace WindowsGame
             this.texture = texture;
         }
 
-        public Block(Block block)
-        {
-            this.texture = block.texture;
-            this.Position = block.Position;
-        }
-
         public void Draw()
         {
             GLOBALS.SpriteBatch.Draw(this.texture, this.Dimensions, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 0.2f);

@@ -7,6 +7,21 @@ using System.Diagnostics;
 
 namespace WindowsGame
 {
+    public enum MoveDirection
+    {
+        None,
+        Left,
+        Right,
+        Down
+    }
+
+    public enum RotationDirection
+    {
+        None,
+        Clockwise,
+        CounterClockwise
+    }
+
     public class PlayGrid
     {
         public PlayGrid(int rows, int columns)
@@ -71,17 +86,33 @@ namespace WindowsGame
 
         private void CheckInputAndMovePiece(KeyboardState kbState)
         {
+            // Check for movement
             if (this.lastKeyboardState.IsKeyUp(Keys.Left) && kbState.IsKeyDown(Keys.Left))
             {
-                StepLeft();
+                List<Point> moveCandidate = pieceInPlay.GetMoveTranslationCandidate(MoveDirection.Left);
+                Translate(moveCandidate, RotationDirection.None);
             }
             else if (this.lastKeyboardState.IsKeyUp(Keys.Right) && kbState.IsKeyDown(Keys.Right))
             {
-                StepRight();
+                List<Point> moveCandidate = pieceInPlay.GetMoveTranslationCandidate(MoveDirection.Right);
+                Translate(moveCandidate, RotationDirection.None);
             }
             else if (kbState.IsKeyDown(Keys.Down))
             {
-                StepDown();
+                List<Point> moveCandidate = pieceInPlay.GetMoveTranslationCandidate(MoveDirection.Down);
+                Translate(moveCandidate, RotationDirection.None);
+            }
+
+            // Check for rotation
+            if (this.lastKeyboardState.IsKeyUp(Keys.X) && kbState.IsKeyDown(Keys.X))
+            {
+                List<Point> rotationCandidate = pieceInPlay.GetRotationTranslationCandidate(RotationDirection.Clockwise);
+                Translate(rotationCandidate, RotationDirection.Clockwise);
+            }
+            else if (this.lastKeyboardState.IsKeyUp(Keys.Z) && kbState.IsKeyDown(Keys.Z))
+            {
+                List<Point> rotationCandidate = pieceInPlay.GetRotationTranslationCandidate(RotationDirection.CounterClockwise);
+                Translate(rotationCandidate, RotationDirection.CounterClockwise);
             }
 
             this.lastKeyboardState = kbState;
@@ -166,25 +197,22 @@ namespace WindowsGame
             }
         }
 
-        private bool CollisionDetected(Point offset)
+        private bool CollisionDetected(List<Point> moveCandidate)
         {
-            for (int i = 0; i < pieceInPlay.PieceGridPositionList.Count; i++)
+            for (int i = 0; i < moveCandidate.Count; i++)
             {
-                // Create new move point candidate based on offset
-                Point point = pieceInPlay.PieceGridPositionList[i];
-                point.Y += offset.Y;
-                point.X += offset.X;
+                Point curPosition = moveCandidate[i];
 
                 // Check play area bounds
-                if (point.X < 0 || point.Y < 0 || point.X >= this.rows || point.Y >= this.columns)
+                if (curPosition.X < 0 || curPosition.Y < 0 || curPosition.X >= this.rows || curPosition.Y >= this.columns)
                     return true;
 
                 // Can't collide with space you already occupy
-                if (pieceInPlay.PieceGridPositionList.Exists(piecePoint => { return (point.X == piecePoint.X && point.Y == piecePoint.Y); }))
+                if (pieceInPlay.PieceGridPositionList.Exists(piecePoint => { return (curPosition.X == piecePoint.X && curPosition.Y == piecePoint.Y); }))
                     continue;
 
                 // Check for collision with other pieces
-                if (state[point.X, point.Y] == 1)
+                if (state[curPosition.X, curPosition.Y] == 1)
                     return true;
             }
 
@@ -194,45 +222,30 @@ namespace WindowsGame
         private bool IsPieceFinishedMoving()
         {
             return pieceInPlay.PieceGridPositionList.Exists(piecePoint =>
-                    {
-                        // If piece has reached the bottom we're done
-                        if (piecePoint.X == (this.rows - 1))
-                            return true;
+                {
+                    // If piece has reached the bottom we're done
+                    if (piecePoint.X == (this.rows - 1))
+                        return true;
 
-                        Point blockBelow = new Point(piecePoint.X + 1, piecePoint.Y);
+                    Point blockBelow = new Point(piecePoint.X + 1, piecePoint.Y);
 
-                        // If block below is a part of this piece, continue checking
-                        // Can't collide with space you already occupy
-                        if (pieceInPlay.PieceGridPositionList.Exists((pieceInPlayPiece) => { return (blockBelow.X == pieceInPlayPiece.X && blockBelow.Y == pieceInPlayPiece.Y); }))
-                            return false;
-                        
-                        // If piece is blocked by another piece below it, we're done
-                        if (state[blockBelow.X, blockBelow.Y] == 1)
-                            return true;
-
+                    // If block below is a part of this piece, continue checking
+                    // Can't collide with space you already occupy
+                    if (pieceInPlay.PieceGridPositionList.Exists((pieceInPlayPiece) => { return (blockBelow.X == pieceInPlayPiece.X && blockBelow.Y == pieceInPlayPiece.Y); }))
                         return false;
-                    });
+                        
+                    // If piece is blocked by another piece below it, we're done
+                    if (state[blockBelow.X, blockBelow.Y] == 1)
+                        return true;
+
+                    return false;
+                });
         }
 
-        private void StepLeft()
-        {
-            Step(new Point(0, -1));
-        }
-
-        private void StepRight()
-        {
-            Step(new Point(0, 1));
-        }
-
-        private void StepDown()
-        {
-            Step(new Point(1, 0));
-        }
-
-        private void Step(Point offset)
+        private void Translate(List<Point> translation, RotationDirection rotationDirection)
         {
             // Check for collision
-            if (CollisionDetected(offset))
+            if (CollisionDetected(translation))
                 return;
 
             // Debug
@@ -248,39 +261,24 @@ namespace WindowsGame
             // Debug
             PrintStateDebug();
 
-            // Move piece in play based on offset
+            // Move piece in play based on translation
             for (int i = 0; i < pieceInPlay.PieceGridPositionList.Count; i++)
             {
-                // Update position in grid based on offset
-                Point point = pieceInPlay.PieceGridPositionList[i];
-                point.Y += offset.Y;
-                point.X += offset.X;
-
                 // Commit pieceInPlay and game state
-                pieceInPlay.PieceGridPositionList[i] = point;
-                state[point.X, point.Y] = 1;
+                pieceInPlay.PieceGridPositionList[i] = translation[i];
+                state[translation[i].X, translation[i].Y] = 1;
             }
+
+            // If rotation, update orientation
+            if (rotationDirection != RotationDirection.None)
+                pieceInPlay.UpdateRotationDegree(rotationDirection);
 
             // Debug
             PrintStateDebug();
         }
 
-        private BoundingBox GetBoundingBox()
-        {
-            if (boundingBox == null)
-            {
-                Vector2 minBounds = new Vector2(Dimensions.X + _padding, Dimensions.Y + _padding);
-                Vector2 maxBounds = new Vector2(Dimensions.X + Dimensions.Width - _padding, Dimensions.Y + Dimensions.Height - _padding);
-
-                boundingBox = new BoundingBox(new Vector3(minBounds, 0.0f), new Vector3(maxBounds, 0.0f));
-            }
-
-            return boundingBox;
-        }
-
         KeyboardState lastKeyboardState;
         public Rectangle Dimensions { get; }
-        private BoundingBox boundingBox;
         private Texture2D texture;
         private List<Piece> pieces;
         private Piece pieceInPlay;

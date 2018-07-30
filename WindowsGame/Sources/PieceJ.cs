@@ -7,18 +7,12 @@ namespace WindowsGame
     {
         public PieceJ() : base(GLOBALS.Textures.OrangeSquareTexture)
         {
+            PieceLayoutList = new List<Point> { new Point(0, 1), new Point(1, 1), new Point(2, 1), new Point(2, 0) };
         }
 
-        public override List<Point> PieceLayoutList
+        public override List<Point> GetRotationTranslationCandidate(RotationDirection rotationDirection)
         {
-            get
-            {
-                if (pieceLayoutList == null)
-                {
-                    pieceLayoutList = new List<Point> { new Point(0, 1), new Point(1, 1), new Point(2, 1), new Point(2, 0) };
-                }
-                return pieceLayoutList;
-            }
+            throw new System.NotImplementedException();
         }
     }
 }

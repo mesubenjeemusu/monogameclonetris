@@ -1,17 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace WindowsGame
 {
     public enum PieceKind : int { I, J, L, O, S, T, Z }
+    public enum RotationDegree : int { Zero, Ninety, OneEighty, TwoSeventyFive }
 
     public abstract class Piece
     {
         public Piece(Texture2D texture)
         {
             blocks = new List<Block> { new Block(texture), new Block(texture), new Block(texture), new Block(texture) };
-            pieceGridPositionList = new List<Point> { Point.Zero, Point.Zero, Point.Zero, Point.Zero };
+            PieceGridPositionList = new List<Point> { Point.Zero, Point.Zero, Point.Zero, Point.Zero };
+            Rotation = RotationDegree.Zero;
         }
 
         public void Update()
@@ -43,23 +46,69 @@ namespace WindowsGame
             }
         }
 
+        public virtual List<Point> GetMoveTranslationCandidate(MoveDirection moveDirection)
+        {
+            List<Point> moveCandidateList = new List<Point>();
+            Point offset = Point.Zero;
+
+            switch(moveDirection)
+            {
+                case MoveDirection.Left:
+                    offset.Y -= 1;
+                    break;
+                case MoveDirection.Right:
+                    offset.Y += 1;
+                    break;
+                case MoveDirection.Down:
+                    offset.X += 1;
+                    break;
+            }
+
+            Point candidatePoint = Point.Zero;
+            for (int i = 0; i < 4; i++)
+            {
+                candidatePoint.X = PieceGridPositionList[i].X + offset.X;
+                candidatePoint.Y = PieceGridPositionList[i].Y + offset.Y;
+                moveCandidateList.Add(new Point(candidatePoint.X, candidatePoint.Y));
+            }
+
+            return moveCandidateList;
+        }
+
+        public abstract List<Point> GetRotationTranslationCandidate(RotationDirection rotationDirection);
+        public virtual void UpdateRotationDegree(RotationDirection rotationDirection)
+        {
+            switch(rotationDirection)
+            {
+                case RotationDirection.Clockwise:
+                    if (Rotation == RotationDegree.TwoSeventyFive)
+                        Rotation = RotationDegree.Zero;
+                    else
+                        Rotation += 1;
+                    break;
+                case RotationDirection.CounterClockwise:
+                    if (Rotation == RotationDegree.Zero)
+                        Rotation = RotationDegree.TwoSeventyFive;
+                    else
+                        Rotation -= 1;
+                    break;
+            }
+        }
+
+        public int PivotIndex { get; protected set; }
+        public RotationDegree Rotation { get; protected set; }
+
         /// <summary>
         /// The piece's position (for each block) on the grid
         /// </summary>
-        public List<Point> PieceGridPositionList
-        {
-            get { return pieceGridPositionList; }
-            set { pieceGridPositionList = value; }
-        }
-        protected List<Point> pieceGridPositionList;
+        public List<Point> PieceGridPositionList { get; set; }
 
         /// <summary>
         /// Basically a grid "mask"
         /// We use this to tell the grid which indices to set as "occupied"
         /// (set index to 1) for a given piece type
         /// </summary>
-        public abstract List<Point> PieceLayoutList { get; }
-        protected List<Point> pieceLayoutList;
+        public List<Point> PieceLayoutList { get; protected set; }
 
         private List<Block> blocks;
         private const int _width = 50;
