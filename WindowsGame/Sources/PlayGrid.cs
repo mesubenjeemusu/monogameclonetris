@@ -78,10 +78,12 @@ namespace WindowsGame
         {
             GLOBALS.SpriteBatch.Draw(texture, Dimensions, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 0.1f);
 
-            foreach (Piece piece in pieces)
-            {
-                piece.Draw();
-            }
+            DrawState();
+
+            //foreach (Piece piece in pieces)
+            //{
+            //    piece.Draw();
+            //}
         }
 
         private void CheckInputAndMovePiece(KeyboardState kbState)
@@ -277,6 +279,48 @@ namespace WindowsGame
 
             // Debug
             PrintStateDebug();
+        }
+
+        private void DrawState()
+        {
+            for (int i = 0; i < this.rows; i++)
+            {
+                for (int j = 0; j < this.columns; j++)
+                {
+                    PieceKind pieceKind = (PieceKind)state[i, j];
+
+                    if (pieceKind == PieceKind.Nil)
+                        continue;
+
+                    int x = (j * 50) + 55;
+                    int y = (i * 50) + 55;
+
+                    GLOBALS.SpriteBatch.Draw(TextureFromPieceKind(pieceKind), new Rectangle(x, y, 50, 50), null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, 0.2f);
+                }
+            }
+        }
+
+        private Texture2D TextureFromPieceKind(PieceKind pieceKind)
+        {
+            switch (pieceKind)
+            {
+                case PieceKind.I:
+                    return GLOBALS.Textures.RedSquareTexture;
+                case PieceKind.J:
+                    return GLOBALS.Textures.OrangeSquareTexture;
+                case PieceKind.L:
+                    return GLOBALS.Textures.YellowSquareTexture;
+                case PieceKind.O:
+                    return GLOBALS.Textures.PinkSquareTexture;
+                case PieceKind.S:
+                    return GLOBALS.Textures.GreenSquareTexture;
+                case PieceKind.T:
+                    return GLOBALS.Textures.BlueSquareTexture;
+                case PieceKind.Z:
+                    return GLOBALS.Textures.PurpleSquareTexture;
+                default:
+                    return null;
+            }
         }
 
         KeyboardState lastKeyboardState;

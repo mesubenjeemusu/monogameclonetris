@@ -7,6 +7,7 @@ namespace WindowsGame
 {
     public enum PieceKind : int
     {
+        Nil = 0,
         I = 1,
         J,
         L,
