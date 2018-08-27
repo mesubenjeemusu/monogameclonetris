@@ -11,6 +11,8 @@ namespace WindowsGame
             PivotIndex = 2;
         }
 
+        public override PieceKind Type { get { return PieceKind.S; } }
+
         public override List<Point> GetRotationTranslationCandidate(RotationDirection rotationDirection)
         {
             Point pivot = PieceGridPositionList[PivotIndex];

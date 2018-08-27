@@ -5,7 +5,17 @@ using System.Collections.Generic;
 
 namespace WindowsGame
 {
-    public enum PieceKind : int { I, J, L, O, S, T, Z }
+    public enum PieceKind : int
+    {
+        I = 1,
+        J,
+        L,
+        O,
+        S,
+        T,
+        Z
+    }
+
     public enum RotationDegree : int { Zero, Ninety, OneEighty, TwoSeventyFive }
 
     public abstract class Piece
@@ -118,6 +128,8 @@ namespace WindowsGame
         /// (set index to 1) for a given piece type
         /// </summary>
         public List<Point> PieceLayoutList { get; protected set; }
+
+        public abstract PieceKind Type { get; }
 
         private List<Block> blocks;
         private const int _width = 50;

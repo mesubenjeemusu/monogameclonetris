@@ -135,7 +135,7 @@ namespace WindowsGame
                 rowIndex = initialRow + pieceInPlay.PieceLayoutList[i].X;
                 columnIndex = initialColumn + pieceInPlay.PieceLayoutList[i].Y;
 
-                state[rowIndex, columnIndex] = 1;
+                state[rowIndex, columnIndex] = (int)pieceInPlay.Type;
                 pieceInPlay.PieceGridPositionList[i] = new Point(rowIndex, columnIndex);
             }
 
@@ -214,7 +214,7 @@ namespace WindowsGame
                     continue;
 
                 // Check for collision with other pieces
-                if (state[curPosition.X, curPosition.Y] == 1)
+                if (state[curPosition.X, curPosition.Y] != 0)
                     return true;
             }
 
@@ -237,7 +237,7 @@ namespace WindowsGame
                         return false;
                         
                     // If piece is blocked by another piece below it, we're done
-                    if (state[blockBelow.X, blockBelow.Y] == 1)
+                    if (state[blockBelow.X, blockBelow.Y] != 0)
                         return true;
 
                     return false;
@@ -268,7 +268,7 @@ namespace WindowsGame
             {
                 // Commit pieceInPlay and game state
                 pieceInPlay.PieceGridPositionList[i] = translation[i];
-                state[translation[i].X, translation[i].Y] = 1;
+                state[translation[i].X, translation[i].Y] = (int)pieceInPlay.Type;
             }
 
             // If rotation, update orientation
